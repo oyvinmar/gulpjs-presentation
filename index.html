@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+
+  <title>gulp.js - by Øyvind Marthinsen</title>
+
+  <meta name="description" content="A gulp.js presentation">
+  <meta name="author" content="Øyvind Marthinsen">
+
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <link rel="stylesheet" href="css/reveal.min.css">
+  <link rel="stylesheet" href="css/theme/dark.css" id="theme">
+
+  <!-- For syntax highlighting -->
+  <link rel="stylesheet" href="lib/css/zenburn.css">
+  <!-- <link rel="stylesheet" href="lib/css/sublime.css"> -->
+
+  <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+  <script>
+    if (window.location.search.match(/print-pdf/gi)) {
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = 'css/print/pdf.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+    }
+  </script>
+
+  <!--[if lt IE 9]>
+  <script src="lib/js/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+<section>
+  <h1>Gulp.js</h1>
+
+  <p>
+    <small>Created by <a href="http://oyvinmar.com">Øyvind Marthinsen</a> / <a
+            href="http://twitter.com/oyvinmar">@oyvinmar</a></small>
+  </p>
+</section>
+
+<section>
+  <h2>Build Systems</h2>
+
+  <p>
+    Why?
+  </p>
+
+</section>
+
+<section>
+  <h2>Automation of tasks</h2>
+  <img src="automation.gif">
+</section>
+
+<section>
+  <h2>Old School Build Systems</h2>
+  <ul>
+    <li>Maven</li>
+    <li>Visual Studio (MSBuild)</li>
+    <li>Gradle</li>
+    <li>Rake</li>
+    <li>GNU Make</li>
+  </ul>
+</section>
+<section>
+  <p>Many frontend task not adequately solved by these tools</p>
+</section>
+
+<section>
+  <h2>Frontend tasks</h2>
+  <ol>
+    <li class="fragment fade-in">Compilation (CoffeScript, SASS, LESS..)</li>
+    <li class="fragment fade-in">Linting</li>
+    <li class="fragment fade-in">Unit testing</li>
+    <li class="fragment fade-in">Minification (JS, CSS)</li>
+    <li class="fragment fade-in">Concatenation</li>
+  </ol>
+  </section>
+<section>
+  <p style="color:#ff2c2d">Repeat when a src file changes</p>
+</section>
+<section>
+  <h2>Frontend-centric build tools</h2>
+  <ul>
+    <li><a href="http://brunch.io/">Brunch</a> </li>
+    <li><a href="http://gruntjs.com/">Grunt</a></li>
+    <li><a href="http://gulpjs.com/">Gulp.js</a> </li>
+    <li><a href="https://github.com/broccolijs/broccoli">Broccoli</a> </li>
+  </ul>
+</section>
+
+<section>
+  <h2>Why Gulp.js?</h2>
+  <ul>
+    <li class="fragment fade-in">Small API surface </li>
+    <li class="fragment fade-in">Stream-based build system</li>
+    <li class="fragment fade-in">Code over configuration </li>
+    <li class="fragment fade-in">Runs with maximum concurrency by default</li>
+  </ul>
+</section>
+
+<section>
+  <h2>The gulp api</h2>
+  <ul>
+    <li>gulp.task(name[, deps], fn)</li>
+    <li>gulp.src(globs)</li>
+    <li>gulp.dest(path)</li>
+    <li>gulp.watch(glob[, opts], tasks)</li>
+  </ul>
+</section>
+<section>
+  <h2>
+gulp.task(name[, deps], fn)
+  </h2>
+  <pre><code class="javascript">
+      gulp.task('somename', function() {
+        // Do stuff
+      });
+    </code></pre>
+  <pre class="fragment fade-in"><code class="javascript">
+      gulp.task('build', ['somename', 'test'];
+     </code></pre>
+    <pre class="fragment fade-in"><code class="bash">
+     > gulp build
+    </code></pre>
+</section>
+<section>
+  <h2>
+    gulp.src(glob)
+  </h2>
+  <pre><code class="javascript">
+    gulp.src('client/templates/*.jade')
+      .pipe(jade())
+  </code></pre>
+  <pre><code class="javascript">
+    gulp.src(['src/**/*.js', 'test/spec/**/*.js'])
+    .pipe(jshint())
+  </code></pre>
+</section>
+<section>
+  <h2>
+    gulp.dest(folder)
+  </h2>
+  <pre><code class="javascript">
+    gulp.src('./client/templates/*.jade')
+      .pipe(jade())
+      .pipe(gulp.dest('./build/templates'))
+      .pipe(minify())
+      .pipe(gulp.dest('./build/minified_templates'));
+  </code></pre>
+</section>
+<section>
+  <h2> gulp.watch(glob[, opts], tasks)</h2>
+  <pre><code class="javascript">
+    gulp.watch('app/**/*.js', ['test','reload']);
+  </code></pre>
+</section>
+<section>
+  <h2>Grokking streams</h2>
+  <pre><code class="javascript">
+    gulp.task('scripts', function () {
+      return gulp.src('src/app/**/*.js') // <-- read from filesystem
+        // In memory transform
+        .pipe(jshint('.jshintrc'))    // <-- lint the code
+        .pipe(concat('app.min.js'))   // <-- concatenate to one file
+        .pipe(uglify())               // <-- minify the file
+        .pipe(rev())                  // <-- add revision to filename
+        .pipe(gulp.dest('dist/app')); // <-- write to filesystem
+    });
+  </code></pre>
+</section>
+<section>
+  <h2>Looks nice</h2>
+  <p>But we already use a build system!</p>
+</section>
+<section>
+  <p>Run Gulp.js from your build system</p>
+</section>
+<section>
+<h2>Add a proxy</h2>
+    <pre><code class="javascript">
+  gulp.task('serve', function () {
+    connect.server({
+      port: 3000,
+      middleware: function () {
+        return [ (function () {
+          var url = require('url');
+          var proxy = require('proxy-middleware');
+          var options = url.parse('http://localhost:7000/api/');
+          options.route = '/api';
+          return proxy(options);
+        })() ];
+      }
+    });
+  });
+  </code></pre>
+</section>
+<section>
+  <h2>Any questions?</h2>
+</section>
+</div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+<script>
+
+  // Full list of configuration options available here:
+  // https://github.com/hakimel/reveal.js#configuration
+  Reveal.initialize({
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+
+    theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+    transition: Reveal.getQueryHash().transition || 'linear', // default/cube/page/concave/zoom/linear/fade/none
+
+    // Parallax scrolling
+    // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+    // parallaxBackgroundSize: '2100px 900px',
+
+    // Optional libraries used to extend on reveal.js
+    dependencies: [
+      { src: 'lib/js/classList.js', condition: function () {
+        return !document.body.classList;
+      } },
+      { src: 'plugin/markdown/marked.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      } },
+      { src: 'plugin/markdown/markdown.js', condition: function () {
+        return !!document.querySelector('[data-markdown]');
+      } },
+      { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+        hljs.initHighlightingOnLoad();
+      } },
+      { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+        return !!document.body.classList;
+      } },
+      { src: 'plugin/notes/notes.js', async: true, condition: function () {
+        return !!document.body.classList;
+      } }
+    ]
+  });
+
+</script>
+
+</body>
+</html>
